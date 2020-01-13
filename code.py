@@ -1,4 +1,4 @@
-# --------------
+#In this task we will load the dataset and perform a basic cleaning in order to simplify our futher steps.--------------
 import pandas as pd
 import os
 import numpy as np
@@ -13,6 +13,7 @@ df=pd.read_csv(path_train)
 
 df.head()
 
+#Function to create new column
 def label_race(row):
     if row["food"]=="T":
         return "food"
@@ -32,9 +33,10 @@ def label_race(row):
         return "casual"
     elif row["other"]=="T":
         return "other"                            
-    
+# Creating a new column called category which has the column marked as true for that particular message.     
 df["category"]=df.apply(label_race,axis=1)      
 
+# Dropping all other columns except the category column
 df.drop(columns=["food", "recharge", "support", "reminders", "nearby", "movies", "casual", "other","travel"],inplace=True)
 print(df.head())
 
@@ -50,13 +52,15 @@ df = df.groupby('category').apply(lambda x: x.sample(n=1000, random_state=0))
 
 # Code starts here
 all_text=df['message'].str.lower()
-
+# Initialising TF-IDF object & Vectorize
 tfidf=TfidfVectorizer(stop_words="english")
 
 all_text=tfidf.fit_transform(all_text)
 
+#Convert to array
 X=all_text.toarray()
 
+#Transform the data and store it
 le=preprocessing.LabelEncoder()
 
 y=le.fit_transform(df["category"])
@@ -69,7 +73,7 @@ y=le.fit_transform(df["category"])
 
 
 
-# --------------
+#Domain classification of customer messages --------------
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
@@ -187,10 +191,13 @@ list_of_docs = df["message"].tolist()
 doc_clean = [clean(doc).split() for doc in list_of_docs]
 
 # Code starts here
+#Creating the dictionary id2word from our cleaned word list doc_clean
 dictionary=corpora.Dictionary(doc_clean)
 
+# Creating the corpus
 doc_term_matrix = [dictionary.doc2bow(doc) for doc in doc_clean]
 
+# Creating the LSi model
 lsimodel=LsiModel(corpus=doc_term_matrix, num_topics=5, id2word=dictionary)
 
 lsimodel.print_topics()
@@ -236,11 +243,13 @@ def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=3):
 # Code starts here
 topic_list,coherence_value_list=compute_coherence_values(dictionary=dictionary,corpus=doc_term_matrix,texts=doc_clean,start=1,limit=41,step=5)
 
+# Finding the index associated with maximum coherence value
 max_index=coherence_value_list.index(max(coherence_value_list))
 opt_topic=topic_list[max_index]
 
 print("optimum no of topics:",opt_topic)
 
+# Implementing LDA with the optimum no. of topic
 lda_model=LdaModel(corpus=doc_term_matrix,num_topics=opt_topic,id2word=dictionary,iterations=10,passes=30,random_state=0)
 
 lda_model.print_topics(5)
