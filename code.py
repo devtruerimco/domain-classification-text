@@ -162,7 +162,7 @@ print("nb_accuracy:",nb_accuracy_2)
 print("lsvm_accuracy:",lsvm_accuracy_2)
 
 
-# --------------
+#Topic modeling using LSi Modelling --------------
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 import string
@@ -205,7 +205,7 @@ lsimodel.print_topics()
 
 
 
-# --------------
+#Topic modeling using LDA --------------
 from gensim.models import LdaModel
 from gensim.models import CoherenceModel
 
